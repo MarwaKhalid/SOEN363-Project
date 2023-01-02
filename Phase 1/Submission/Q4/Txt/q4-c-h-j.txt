@@ -1,0 +1,43 @@
+Q4: 
+
+
+Q3-c
+
+In this case, the query relies on the columns "genre", "mid", and "title". There is no reason to create an indexes as Postgres automatically creates indexes based on columns included in the primary key of a given table. In other words, the optimizations are already in place. In the case of the column "title" (not included in the primary key of the table "movies"), no index is required as the query is merely counting instances of "title", and no searching for a specific one. 
+
+
+Q3-h
+
+create index ratings_idx on movies (
+    rating ASC NULLS FIRST
+    );
+
+An index on the column "ratings" was created, which improved the runtime of the two queries that counted the rows in "low_rating" and "high_rating". This was to be expected as "ratings" is not part of any primary key, and thus was not part of an index automatically created by Postgres. 
+
+
+Despite relying on the views "low_rating" and "high_rating" (both using the index "ratings_idx"), no performance improvement was observed for the query relating to the count of "no flop" actors.  
+
+A minor performance improvement was observed in the query that lists the top 10 "no flop actors".
+
+
+
+Q3-j
+
+Due to the fact that no query or view uses columns that are not already part of an index (created by default by Postgres), there are no indexes to create, 
+
+BONUS: 
+
+Due to the fact that queries on the view "non_existent" are very slow (approximately 14 seconds), a materialized view was created (despite not being in the assignment requirments) which dramatically improved runtimes of queries on that view. 
+
+The queries of subsections 3,4 in Q3-j saw a reduction in runtimes of about 14 seconds each. 
+
+note: I did not include these new runtimes in the query outputs as they are not part of the assignment requirements.
+
+
+
+
+
+
+
+
+

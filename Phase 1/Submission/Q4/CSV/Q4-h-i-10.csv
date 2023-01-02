@@ -1,0 +1,3 @@
+high_ratings_count,low_ratings_count, low_ratings_runtime, high_ratings_runtime, 
+87032,13710,494 ms, 209 ms
+,with "ratings_idx" index, 317 ms, 81 ms

@@ -1,0 +1,109 @@
+CREATE VIEW target_actors_names AS
+    SELECT DISTINCT A.name as movie_actors
+    FROM Movies M, Actors A
+    WHERE M.title='Mr. & Mrs. Smith' and M.mid=A.mid;
+
+CREATE VIEW common_actors AS
+    SELECT M2.mid as movie_id, COUNT(DISTINCT A2.name) as number_of_common_actors
+    FROM Movies M2, Actors A2
+    WHERE name IN (SELECT movie_actors FROM target_actors_names)
+                    and M2.mid=A2.mid and M2.title<>'Mr. & Mrs. Smith'
+    GROUP BY M2.mid;
+
+CREATE VIEW fraction_common_actors AS
+    SELECT movie_id, ((max(number_of_common_actors) * 1.0) / (COUNT(movie_actors) * 1.0)) as fraction_actors
+    FROM common_actors, target_actors_names
+    GROUP BY movie_id;
+	
+CREATE VIEW tags_for_movie AS
+    SELECT DISTINCT T.tid as movie_tags
+    FROM Movies M, Tags T
+    WHERE M.title='Mr. & Mrs. Smith' and M.mid=T.mid;
+	
+CREATE VIEW common_tags AS
+    SELECT M2.mid as movie_id, COUNT(DISTINCT T2.tid) as number_of_common_tags
+    FROM Movies M2, Tags T2
+    WHERE tid IN (
+        SELECT movie_tags FROM tags_for_movie)
+        and M2.mid = T2.mid and M2.title<>'Mr. & Mrs. Smith'
+    GROUP BY M2.mid;
+
+CREATE VIEW fraction_common_tags AS
+    SELECT movie_id, ((max(number_of_common_tags) * 1.0) / (COUNT(movie_tags) * 1.0)) as fraction_tags
+    FROM common_tags, tags_for_movie
+    GROUP BY movie_id;
+
+CREATE VIEW genres_for_movie AS
+    SELECT DISTINCT G.genre as movie_genres
+    FROM Movies M, Genres G
+    WHERE M.title='Mr. & Mrs. Smith' and M.mid=G.mid;
+
+CREATE VIEW common_genres AS
+    SELECT M2.mid as movie_id, COUNT(DISTINCT G2.genre) as number_of_common_genres
+    FROM Movies M2, Genres G2
+    WHERE genre IN (
+        SELECT movie_genres FROM genres_for_movie)
+        and M2.mid = G2.mid and M2.title<>'Mr. & Mrs. Smith'
+    GROUP BY M2.mid;
+
+CREATE VIEW fraction_common_genres AS
+    SELECT movie_id, (MAX(number_of_common_genres) * 1.0 / COUNT(movie_genres) * 1.0) as fraction_genres
+    FROM genres_for_movie, common_genres
+    GROUP BY movie_id;
+
+CREATE VIEW target_id(mid) AS
+    SELECT MAX(movies.mid)
+    FROM movies
+    WHERE movies.title = 'Mr. & Mrs. Smith';
+
+CREATE VIEW target_age(age) AS
+    SELECT year
+    FROM movies
+    WHERE mid = (SELECT mid FROM target_id);
+
+CREATE VIEW max_age_gap(max_gap) AS
+    SELECT MAX(ABS(year - (SELECT target_age.age FROM target_age)))
+    FROM movies m1
+    WHERE m1.mid <> (SELECT mid FROM target_id);
+
+CREATE VIEW mr_mrs_year(release_year) AS
+    SELECT DISTINCT M.year
+    FROM Movies M
+    WHERE M.title='Mr. & Mrs. Smith';
+
+CREATE VIEW normalized_age AS
+    SELECT M2.mid, (((SELECT max_gap FROM max_age_gap) - ABS((SELECT release_year FROM mr_mrs_year) - M2.year))
+                          /(SELECT max_gap FROM max_age_gap)) as normalized_age_gap
+    FROM Movies M, Movies M2
+    WHERE M.title='Mr. & Mrs. Smith' and M.title<>M2.title;
+
+CREATE VIEW max_rating_gap(rating_gap) AS
+SELECT (M.rating - (SELECT MIN(M1.rating) FROM Movies M1)) as rating_gap
+    FROM Movies M, Movies M2
+    WHERE M.title='Mr. & Mrs. Smith' and M.mid<>M2.mid
+    ORDER BY (ABS(M.rating - M2.rating)) DESC
+    LIMIT 1;
+
+CREATE VIEW mr_mrs_rating(movie_rating) AS
+    SELECT DISTINCT M.rating
+    FROM Movies M
+    WHERE M.title='Mr. & Mrs. Smith';
+
+CREATE VIEW normalized_rating AS
+    SELECT M2.mid, (((SELECT rating_gap FROM max_rating_gap) - ABS((SELECT movie_rating FROM mr_mrs_rating) - (SELECT M2.rating)))
+                         /(SELECT rating_gap FROM max_rating_gap)) as normalized_rating_gap
+    FROM Movies M, Movies M2
+    WHERE M.title='Mr. & Mrs. Smith' and M.mid<>M2.mid;
+
+SELECT M.title, M.rating, ROUND(CAST((((MAX(FA.fraction_actors + FT.fraction_tags + FG.fraction_genres
+                                + NA.normalized_age_gap + NR.normalized_rating_gap))/5)*100) AS DECIMAL), 2) AS recommendation
+FROM normalized_age NA
+FULL OUTER JOIN fraction_common_actors FA ON FA.movie_id=NA.mid
+FULL OUTER JOIN fraction_common_tags FT ON FT.movie_id=FA.movie_id
+FULL OUTER JOIN fraction_common_genres FG ON FG.movie_id=FT.movie_id
+FULL OUTER JOIN normalized_rating NR ON NR.mid=FG.movie_id
+FULL OUTER JOIN Movies M on NA.mid = M.mid
+
+GROUP BY M.mid
+ORDER BY recommendation DESC
+LIMIT 10;

@@ -1,0 +1,7 @@
+select genre, count(distinct title) as N
+from genres g,
+     movies m
+where g.mid = m.mid
+group by genre
+having count(distinct title) > 1000
+order by N;

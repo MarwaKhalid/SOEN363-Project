@@ -1,0 +1,14 @@
+SELECT m.title, m.year, m.rating, m.num_ratings, COUNT(*)
+FROM Movies m
+GROUP BY m.title, m.year, m.rating, m.num_ratings
+HAVING COUNT(*) > 1;
+
+
+/*Example create a view */
+CREATE VIEW movies_no_duplicates
+AS
+SELECT *
+FROM Movies m
+WHERE m.mid IN (SELECT min(m.mid)
+    FROM Movies m
+    GROUP BY m.title, m.year, m.rating, m.num_ratings);

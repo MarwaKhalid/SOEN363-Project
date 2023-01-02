@@ -1,0 +1,13 @@
+/* Find most social actor */
+CREATE MATERIALIZED VIEW num_of_co_actors AS
+    SELECT actors.name as name, COUNT(DISTINCT actors1) as co_actors FROM actors
+        INNER JOIN actors as actors1 on actors.mid = actors1.mid WHERE
+            actors.name != actors1.name
+    group by actors.name
+    ORDER BY co_actors DESC;
+
+SELECT * FROM num_of_co_actors WHERE
+    co_actors=(SELECT MAX(num_of_co_actors1.co_actors)
+               FROM num_of_co_actors as num_of_co_actors1);
+
+/* Query time: 128 ms */

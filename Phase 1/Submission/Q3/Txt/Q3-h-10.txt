@@ -1,0 +1,37 @@
+-- i
+create view high_ratings as
+select distinct name
+from actors a,
+     movies m
+where a.mid = m.mid
+  and rating >= 4
+order by name;
+
+create view low_ratings as
+select distinct name
+from actors a,
+     movies m
+where a.mid = m.mid
+  and rating < 4
+order by name;
+
+select count(*) low_ratings_count from low_ratings;
+select count(high_ratings) high_ratings_count from high_ratings;
+
+-- ii
+select count(name) no_flop_count
+from high_ratings
+where name not in (select name from low_ratings);
+
+
+
+-- iii
+select a.name, count(m.title)
+from actors a,
+     movies m
+where a.mid = m.mid
+  and a.name in (select name from high_ratings)
+  and a.name not in (select name from low_ratings)
+group by a.name
+order by count(m.title) desc
+limit 10;

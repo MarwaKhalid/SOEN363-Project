@@ -1,0 +1,26 @@
+/* For Q3 B */
+CREATE INDEX id_mid_movies
+ON movies (mid);
+
+CREATE INDEX id_mid_actors
+ON actors (mid);
+
+/* For Q3 I */
+CREATE INDEX id_mid_movies
+ON movies (mid);
+
+CREATE INDEX id_mid_actors
+ON actors (mid);
+
+CREATE INDEX id_year_movies
+ON movies (year);
+
+/* For Q3 k */
+CREATE INDEX id_mid_movies
+ON movies (mid);
+
+CREATE INDEX id_mid_actors
+ON actors (mid);
+
+CREATE INDEX id_name_actors
+ON actors (name);

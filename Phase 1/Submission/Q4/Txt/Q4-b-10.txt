@@ -1,0 +1,9 @@
+Before indexes:
+Q3-b: 231 ms
+Q3-i: 1s 148ms
+Q3-k: 2m 6s 679ms
+
+After indexes:
+Q3-b: 105 ms
+Q3-i: 808 ms
+Q3-k: 59s 393ms

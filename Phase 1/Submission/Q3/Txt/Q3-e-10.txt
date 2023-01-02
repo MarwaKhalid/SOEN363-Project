@@ -1,0 +1,9 @@
+SELECT M.title 
+FROM movies M
+WHERE M.mid IN
+(SELECT T.mid
+FROM tags T
+WHERE T.tid IN(SELECT TN.tid
+			FROM tag_names TN 
+			WHERE TN.tag LIKE '%good%'
+			AND TN.tag LIKE '%bad%'))

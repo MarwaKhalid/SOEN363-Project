@@ -1,0 +1,61 @@
+~~~~~~~~~~~~~~~~~i~~~~~~~~~~~~~~~~~
+select *
+from movies
+where movies.num_ratings IN 
+(select max(M.num_ratings) 
+from movies as M)
+
+~~~~~~~~~~~~~~~~~ii~~~~~~~~~~~~~~~~~
+select *
+from movies
+where movies.rating IN 
+(select max(M.rating) 
+from movies as M)
+order by movies.mid asc
+
+~~~~~~~~~~~~~~~~~iii~~~~~~~~~~~~~~~~~
+(SELECT *
+FROM movies
+where movies.num_ratings IN 
+(select max(M.num_ratings) 
+from movies as M);
+
+INTERSECT
+(SELECT *
+FROM movies
+where movies.rating IN 
+(select max(M.rating) 
+from movies as M);
+
+~~Answer: No because it shows no results.
+
+~~~~~~~~~~~~~~~~~iv~~~~~~~~~~~~~~~~~
+select *
+from movies
+where movies.rating IN 
+(select min(M.rating) 
+from movies as M
+where M.rating is not null)
+order by movies.mid asc
+
+~~~~~~~~~~~~~~~~~v~~~~~~~~~~~~~~~~~
+assuming view from highest_num_ratings is already created
+
+create view lowest_ratings
+as
+select *
+from movies
+where movies.rating IN 
+(select min(M.rating) 
+from movies as M
+where M.rating is not null)
+order by movies.mid asc;
+
+select *
+from highest_num_ratings
+inner join lowest_ratings on highest_num_ratings.mid=lowest_ratings.mid;
+
+~~Answer: No because it shows no results.
+
+~~~~~~~~~~~~~~~~~vi~~~~~~~~~~~~~~~~~
+Our hypothesis is not true because there are no movies that have both the highest number of ratings and highest ratings. Equally, there are no movies which have the highest number of ratings and lowest ratings.Additionally, because iii and v did not return any results it means our hypothesis was wrong.

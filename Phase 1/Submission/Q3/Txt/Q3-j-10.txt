@@ -1,0 +1,49 @@
+
+--1
+
+
+create view co_actors as
+select distinct a1.name
+from actors a1,
+     actors a2,
+     movies m
+where a1.mid = m.mid
+  and a2.mid = m.mid
+  and a2.name = 'Annette Nicole';
+
+select count(*) co_actors_count
+from co_actors;
+
+--2
+
+create view all_combinations as
+select ca.name, m.mid
+from co_actors ca
+         cross join (select m.mid
+                     from movies m,
+                          actors a
+                     where m.mid = a.mid
+                       and a.name = 'Annette Nicole') as m
+where ca.name <> 'Annette Nicole';
+
+
+select count(*) all_combinations_count
+from all_combinations;
+
+--3
+
+create view non_existent as
+select name, mid
+from all_combinations
+where (name, mid) not in (select name, mid from actors);
+
+select count(*) non_existent_count
+from non_existent;
+
+--4
+
+select name
+from co_actors
+where name not in (select distinct name from non_existent)
+and name <> 'Annette Nicole';
+
