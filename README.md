@@ -1,4 +1,6 @@
-# SOEN 363 Project - Fall 2022
+# Relational Data and NoSQL Systems
+Phase 1 - Relational Data Systems<br/>
+Phase 2 - NoSQL Systems
 
 ## Team: Best Team - Group 10
 | Name                 | Student ID | GitHub Page                                                   |
